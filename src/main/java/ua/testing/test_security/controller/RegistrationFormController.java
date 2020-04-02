@@ -4,23 +4,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ua.testing.test_security.dto.UsersDTO;
 import ua.testing.test_security.entity.RoleType;
 import ua.testing.test_security.entity.User;
 import ua.testing.test_security.service.RegistrationFormService;
+import ua.testing.test_security.service.UserService;
 
 @Slf4j
 @RestController
 @RequestMapping(value = "/")
 public class RegistrationFormController {
-    RegistrationFormService registrationFormService;
+    private final RegistrationFormService registrationFormService;
+    private final UserService userService;
+
     @Autowired
-    public RegistrationFormController(RegistrationFormService registrationFormService) {
+    public RegistrationFormController(RegistrationFormService registrationFormService,
+                                      UserService userService) {
         this.registrationFormService = registrationFormService;
+        this.userService = userService;
     }
+
     @ResponseStatus( HttpStatus.CREATED)
     @PostMapping(value = "reg")
     public void regFormController(User user) {
@@ -37,5 +41,11 @@ public class RegistrationFormController {
                 .accountNonExpired(true)
                 .build());
         log.info("{}", user);
+    }
+
+    @RequestMapping(value = "user", method = RequestMethod.GET)
+    public UsersDTO getAllUser(){
+        //log.info("{}",userService.getAllUsers());
+        return userService.getAllUsers();
     }
 }

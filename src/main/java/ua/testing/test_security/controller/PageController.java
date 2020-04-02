@@ -7,7 +7,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import ua.testing.test_security.dto.EditionDTO;
 import ua.testing.test_security.dto.UsersDTO;
+import ua.testing.test_security.entity.Edition;
+import ua.testing.test_security.entity.EditionStatus;
 import ua.testing.test_security.entity.RoleType;
 import ua.testing.test_security.entity.User;
 import ua.testing.test_security.service.EditionService;
@@ -43,8 +46,20 @@ public class PageController {
     @RequestMapping("/admin")
     public String usersPage(Model model){
         if (role().equals(RoleType.ROLE_ADMIN)) {
-            //model.addAttribute("users", userService.getAllUsers());
+            model.addAttribute("editions", editionService.getAllEditions());
             return "admin";
+        }
+        else{
+            model.addAttribute("username", userName());
+        }
+        return "access_denied";
+    }
+
+    @RequestMapping("/catalog")
+    public String catalogPage(Model model){
+        if (role().equals(RoleType.ROLE_ADMIN)) {
+            model.addAttribute("editions", editionService.getAllEditions());
+            return "catalog_admin";
         }
         else{
             model.addAttribute("username", userName());
@@ -67,6 +82,20 @@ public class PageController {
     public String orderPage(Model model){
         model.addAttribute("editions", editionService.getAllEditions());
         return "order";
+    }
+
+    @RequestMapping(value="/catalog/add", method = RequestMethod.POST)
+    public String contactAdd(@RequestParam String name,
+                             @RequestParam String author,
+                             @RequestParam long price,
+                             @RequestParam int amountEdition,
+                             @RequestParam EditionStatus editionStatus,
+                             @RequestParam int amountAvailable) {
+        //Group group = (groupId != DEFAULT_GROUP_ID) ? contactService.findGroup(groupId) : null;
+        Edition edition = new Edition(name, author, price, amountEdition, editionStatus, amountAvailable);
+        //if(edition.equals(editionService.getAllEditions()))  edition=null;
+        editionService.addEdition(edition);
+        return "redirect:/catalog";
     }
 
     public RoleType role(){

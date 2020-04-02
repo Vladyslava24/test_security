@@ -1,5 +1,7 @@
 package ua.testing.test_security.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -84,7 +86,13 @@ public class PageController {
         return "order";
     }
 
-    @RequestMapping(value="/catalog/add", method = RequestMethod.POST)
+    @RequestMapping("/test")
+    public String testPage(Model model){
+        model.addAttribute("editions", editionService.getAllEditions());
+        return "test";
+    }
+
+    @RequestMapping(value="/test/add", method = RequestMethod.POST)
     public String contactAdd(@RequestParam String name,
                              @RequestParam String author,
                              @RequestParam long price,
@@ -95,7 +103,16 @@ public class PageController {
         Edition edition = new Edition(name, author, price, amountEdition, editionStatus, amountAvailable);
         //if(edition.equals(editionService.getAllEditions()))  edition=null;
         editionService.addEdition(edition);
-        return "redirect:/catalog";
+        return "redirect:/test";
+    }
+
+    @RequestMapping(value = "/test/delete", method = RequestMethod.POST)
+    public ResponseEntity<Void> delete(@RequestParam(value = "toDelete[]", required = false)
+                                               Long[] toDelete) {
+        if (toDelete != null && toDelete.length > 0)
+            editionService.deleteEditions(toDelete);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public RoleType role(){
